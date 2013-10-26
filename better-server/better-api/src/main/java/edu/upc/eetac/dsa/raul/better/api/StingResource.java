@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
@@ -24,7 +23,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import edu.upc.eetac.dsa.raul.better.api.links.BeeterAPILinkBuilder;
-import edu.upc.eetac.dsa.raul.better.api.links.Link;
 import edu.upc.eetac.dsa.raul.better.api.model.Sting;
 import edu.upc.eetac.dsa.raul.better.api.model.StingCollection;
 
@@ -292,6 +290,66 @@ public class StingResource {
 			}
 		}
 		return sting;
+	}
+	
+	@GET
+	@Path("/search")
+	@Produces(MediaType.BEETER_API_STING_COLLECTION)
+	public StingCollection getSearch(@QueryParam("pattern") String pattern, @QueryParam("offset") String offset, @QueryParam("length") String length, @Context Request req) {
+		if ((offset == null) || (length == null))
+			throw new BadRequestException("offset and length are mandatory parameters");
+		int ioffset, ilength;
+		try {
+			ioffset = Integer.parseInt(offset);
+			if (ioffset < 0)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException("offset must be an integer greater or equal than 0.");
+		}
+		try {
+			ilength = Integer.parseInt(length);
+			if (ilength < 1)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException("length must be an integer greater or equal than 0.");
+		}
+
+		// TODO: Retrieve all stings stored in the database, instantiate one
+		// Sting for each one and store them in the StingCollection.
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+			stmt = con.createStatement();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+
+		try {
+			String query = "SELECT stings.*, users.name FROM stings INNER JOIN users ON (users.username=stings.username) WHERE subject LIKE '%"+pattern+"%' OR content LIKE '%"+pattern+"%' ORDER BY creation_timestamp desc LIMIT "+ offset + ", " + length + ";";
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				Sting s = new Sting();
+				s.setAuthor(rs.getString("username"));
+				s.setContent(rs.getString("content"));
+				s.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
+				s.setStingId(rs.getString("stingid"));
+				s.setSubject(rs.getString("subject"));
+				s.setUsername(rs.getString("username"));
+				s.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, s));
+				stings.add(s);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+		return stings;
 	}
 
 }
