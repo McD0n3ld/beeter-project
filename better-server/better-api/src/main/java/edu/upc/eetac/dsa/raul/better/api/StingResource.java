@@ -181,11 +181,9 @@ public class StingResource {
 				sting.setStingId(stingid);
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
-				ArrayList<Link> list = new ArrayList<Link>();
-				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())-1),"prev"));
-				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"actual"));
-				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())+1),"next"));
-				sting.setLinks(list);
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())-1),"prev"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"actual"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())+1),"next"));
 			} else
 				throw new StingNotFoundException();
 		} catch (SQLException e) {
