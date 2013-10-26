@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import edu.upc.eetac.dsa.raul.better.api.links.BeeterAPILinkBuilder;
+import edu.upc.eetac.dsa.raul.better.api.links.Link;
 import edu.upc.eetac.dsa.raul.better.api.model.Sting;
 import edu.upc.eetac.dsa.raul.better.api.model.StingCollection;
 
@@ -179,6 +181,11 @@ public class StingResource {
 				sting.setStingId(stingid);
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
+				ArrayList<Link> list = new ArrayList<Link>();
+				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())-1),"prev"));
+				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"actual"));
+				list.add(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())+1),"next"));
+				sting.setLinks(list);
 			} else
 				throw new StingNotFoundException();
 		} catch (SQLException e) {
