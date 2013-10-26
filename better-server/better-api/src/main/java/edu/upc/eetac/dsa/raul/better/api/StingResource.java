@@ -141,6 +141,7 @@ public class StingResource {
 				rs.next();
 				sting.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
 				sting.setStingId(Integer.toString(stingid));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"self"));
 				stings.add(sting);
 			} else
 				throw new StingNotFoundException();
@@ -182,7 +183,7 @@ public class StingResource {
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
 				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())-1),"prev"));
-				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"actual"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"self"));
 				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,Integer.toString(Integer.parseInt(sting.getStingId())+1),"next"));
 			} else
 				throw new StingNotFoundException();
@@ -279,6 +280,7 @@ public class StingResource {
 				sting.setStingId(stingid);
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo,sting.getStingId(),"self"));
 			}
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());
