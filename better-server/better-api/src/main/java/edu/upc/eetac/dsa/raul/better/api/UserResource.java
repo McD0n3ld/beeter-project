@@ -17,9 +17,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import edu.upc.eetac.dsa.raul.better.api.links.BeeterAPILinkBuilder;
 import edu.upc.eetac.dsa.raul.better.api.model.User;
 import edu.upc.eetac.dsa.raul.better.api.model.UserCollection;
 
@@ -28,6 +28,9 @@ public class UserResource {
 
 	@Context
 	private UriInfo uriInfo;
+	
+	@Context
+	private SecurityContext security;
 
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 	UserCollection users = new UserCollection();
@@ -122,7 +125,7 @@ public class UserResource {
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
 				throw new UserNotFoundException();
-			String query = "SELECT * FROM users WHERE username=" + username + ";";
+			String query = "SELECT * FROM users WHERE username='" + username + "';";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
 				user.setName(rs.getString("name"));

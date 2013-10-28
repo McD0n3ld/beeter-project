@@ -33,8 +33,10 @@ public class StingResource {
 
 	@Context
 	private UriInfo uriInfo;
+
 	@Context
 	private SecurityContext security;
+
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 	StingCollection stings = new StingCollection();
 
@@ -59,7 +61,6 @@ public class StingResource {
 			throw new BadRequestException("length must be an integer greater or equal than 0.");
 		}
 
-		// TODO: Retrieve all stings stored in the database, instantiate one
 		// Sting for each one and store them in the StingCollection.
 		Connection con = null;
 		Statement stmt = null;
@@ -251,7 +252,7 @@ public class StingResource {
 	@Consumes(MediaType.BEETER_API_STING)
 	@Produces(MediaType.BEETER_API_STING)
 	public Sting updateSting(@PathParam("stingid") String stingid, Sting sting) {
-		// TODO: Update in the database the record identified by stingid with
+
 		if (sting.getSubject().length() > 100)
 			throw new BadRequestException("Subject length must be less or equal than 100 characters");
 		if (sting.getContent().length() > 500)
@@ -270,7 +271,7 @@ public class StingResource {
 		}
 		try {
 			stmt = con.createStatement();
-			String update; // TODO: create update query
+			String update;
 			update = "UPDATE stings SET stings.content='" + sting.getContent() + "', stings.subject='" + sting.getSubject() + "' WHERE stingid='" + stingid
 					+ "';";
 			int rows = stmt.executeUpdate(update);
