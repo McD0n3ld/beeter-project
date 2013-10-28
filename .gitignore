@@ -3,3 +3,4 @@
 .settings/
 target/
 sql/beeterdb-data.sql
+/sql

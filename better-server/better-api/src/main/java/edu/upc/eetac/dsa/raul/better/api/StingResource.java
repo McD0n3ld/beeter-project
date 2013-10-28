@@ -8,6 +8,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import edu.upc.eetac.dsa.raul.better.api.links.BeeterAPILinkBuilder;
@@ -31,6 +33,9 @@ public class StingResource {
 
 	@Context
 	private UriInfo uriInfo;
+	
+	@Context
+	private SecurityContext security;
 
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 	StingCollection stings = new StingCollection();
@@ -245,6 +250,12 @@ public class StingResource {
 	@Produces(MediaType.BEETER_API_STING)
 	public Sting updateSting(@PathParam("stingid") String stingid, Sting sting) {
 		// TODO: Update in the database the record identified by stingid with
+		if(security.isUserInRole("registered")) {
+			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
+				throw new ForbiddenException("You are not allowed...");
+			}
+		} /* else { } //admin */
+		
 		if (sting.getSubject().length() > 100)
 			throw new BadRequestException("Subject length must be less or equal than 100 characters");
 		if (sting.getContent().length() > 500)
