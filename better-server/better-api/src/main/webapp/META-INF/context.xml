@@ -14,5 +14,4 @@
 		dataSourceName="jdbc/realmdb" localDataSource="true" digest="MD5"
 		userTable="users" userNameCol="username" userCredCol="userpass"
 		userRoleTable="user_roles" roleNameCol="rolename" />
-		
 </Context>

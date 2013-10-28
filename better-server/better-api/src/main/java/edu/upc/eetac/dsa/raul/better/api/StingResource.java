@@ -33,10 +33,8 @@ public class StingResource {
 
 	@Context
 	private UriInfo uriInfo;
-	
 	@Context
 	private SecurityContext security;
-
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 	StingCollection stings = new StingCollection();
 
@@ -102,11 +100,11 @@ public class StingResource {
 			} catch (Exception e) {
 			}
 		}
-		int prev = ioffset-ilength;
-		int next = ioffset+ilength;
-		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo,offset,length,username,"self"));
-		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo,Integer.toString(prev),length,username,"prev"));
-		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo,Integer.toString(next),length,username,"next"));
+		int prev = ioffset - ilength;
+		int next = ioffset + ilength;
+		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset, length, username, "self"));
+		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, Integer.toString(prev), length, username, "prev"));
+		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, Integer.toString(next), length, username, "next"));
 		return stings;
 	}
 
@@ -144,6 +142,7 @@ public class StingResource {
 				rs.next();
 				sting.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
 				sting.setStingId(Integer.toString(stingid));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
 				stings.add(sting);
 			} else
 				throw new StingNotFoundException();
@@ -184,6 +183,9 @@ public class StingResource {
 				sting.setStingId(stingid);
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, Integer.toString(Integer.parseInt(sting.getStingId()) - 1), "prev"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, Integer.toString(Integer.parseInt(sting.getStingId()) + 1), "next"));
 			} else
 				throw new StingNotFoundException();
 		} catch (SQLException e) {
@@ -250,17 +252,15 @@ public class StingResource {
 	@Produces(MediaType.BEETER_API_STING)
 	public Sting updateSting(@PathParam("stingid") String stingid, Sting sting) {
 		// TODO: Update in the database the record identified by stingid with
-		if(security.isUserInRole("registered")) {
-			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
-				throw new ForbiddenException("You are not allowed...");
-			}
-		} /* else { } //admin */
-		
 		if (sting.getSubject().length() > 100)
 			throw new BadRequestException("Subject length must be less or equal than 100 characters");
 		if (sting.getContent().length() > 500)
 			throw new BadRequestException("Content length must be less or equal than 100 characters");
-
+		if (security.isUserInRole("registered")) {
+			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
+				throw new ForbiddenException("You are not allowed...");
+			}
+		} /* else { } //admin */
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -285,6 +285,7 @@ public class StingResource {
 				sting.setStingId(stingid);
 				sting.setSubject(rs.getString("subject"));
 				sting.setUsername(rs.getString("username"));
+				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
 			}
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());
@@ -296,6 +297,68 @@ public class StingResource {
 			}
 		}
 		return sting;
+	}
+
+	@GET
+	@Path("/search")
+	@Produces(MediaType.BEETER_API_STING_COLLECTION)
+	public StingCollection getSearch(@QueryParam("pattern") String pattern, @QueryParam("offset") String offset, @QueryParam("length") String length,
+			@Context Request req) {
+		if ((offset == null) || (length == null))
+			throw new BadRequestException("offset and length are mandatory parameters");
+		int ioffset, ilength;
+		try {
+			ioffset = Integer.parseInt(offset);
+			if (ioffset < 0)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException("offset must be an integer greater or equal than 0.");
+		}
+		try {
+			ilength = Integer.parseInt(length);
+			if (ilength < 1)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException("length must be an integer greater or equal than 0.");
+		}
+
+		// TODO: Retrieve all stings stored in the database, instantiate one
+		// Sting for each one and store them in the StingCollection.
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+			stmt = con.createStatement();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+
+		try {
+			String query = "SELECT stings.*, users.name FROM stings INNER JOIN users ON (users.username=stings.username) WHERE subject LIKE '%" + pattern
+					+ "%' OR content LIKE '%" + pattern + "%' ORDER BY creation_timestamp desc LIMIT " + offset + ", " + length + ";";
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				Sting s = new Sting();
+				s.setAuthor(rs.getString("username"));
+				s.setContent(rs.getString("content"));
+				s.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
+				s.setStingId(rs.getString("stingid"));
+				s.setSubject(rs.getString("subject"));
+				s.setUsername(rs.getString("username"));
+				s.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, s));
+				stings.add(s);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+		return stings;
 	}
 
 }

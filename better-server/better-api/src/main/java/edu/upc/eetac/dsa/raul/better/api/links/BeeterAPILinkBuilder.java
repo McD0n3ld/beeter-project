@@ -86,7 +86,7 @@ public class BeeterAPILinkBuilder {
 		URI stingURI = uriInfo.getBaseUriBuilder().path(StingResource.class).path(StingResource.class, "getSting").build(stingid);
 		Link link = new Link();
 		link.setUri(stingURI.toString());
-		link.setRel("self");
+		link.setRel(rel);
 		link.setTitle("Sting " + stingid);
 		link.setType(MediaType.BEETER_API_STING);
 

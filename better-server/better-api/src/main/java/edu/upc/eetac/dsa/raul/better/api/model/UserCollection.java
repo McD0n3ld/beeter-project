@@ -5,27 +5,27 @@ import java.util.List;
 
 import edu.upc.eetac.dsa.raul.better.api.links.Link;
 
-public class StingCollection {
+public class UserCollection {
 	
 	//private java.util.List<Sting> stings = new java.util.ArrayList<Sting>();
-	private List<Sting> stings = new ArrayList<Sting>();
+	private List<User> users = new ArrayList<User>();
 	private ArrayList<Link> links;
 	
-	public StingCollection() {
+	public UserCollection() {
 		super();
 		links = new ArrayList<Link>();
 	}
 
-	public void add(Sting sting) {
-		stings.add(sting);
+	public void add(User user) {
+		users.add(user);
 	}
 
-	public List<Sting> getStings() {
-		return stings;
+	public List<User> getUsers() {
+		return users;
 	}
 
-	public void setStings(List<Sting> stings) {
-		this.stings = stings;
+	public void setUsers(List<User> users) {
+		this.users = users;
 	}
 
 	public ArrayList<Link> getLinks() {
@@ -34,8 +34,8 @@ public class StingCollection {
 
 	public void setLinks(ArrayList<Link> links) {
 		this.links = links;
-	}	
-	
+	}
+
 	public void addLink(Link link) {
 		links.add(link);
 		return;
