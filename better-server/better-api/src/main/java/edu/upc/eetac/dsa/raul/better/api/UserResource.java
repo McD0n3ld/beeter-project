@@ -8,6 +8,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -109,6 +110,12 @@ public class UserResource {
 
 		if (!user.getEmail().contains("@") || !user.getEmail().contains("."))
 			throw new BadRequestException("email introduced not valid");
+		
+		if (security.isUserInRole("registered")) {
+			if (!security.getUserPrincipal().getName().equals(user.getUsername())) {
+				throw new ForbiddenException("You are not allowed...");
+			}
+		} /* else { } //admin */		
 		
 		Connection con = null;
 		Statement stmt = null;
