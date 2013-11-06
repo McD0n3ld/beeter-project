@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import javax.servlet.RequestDispatcher;
@@ -84,6 +85,27 @@ public class RegisterServlet extends HttpServlet {
 			 ServletContext sc = getServletContext();
 			 RequestDispatcher rd = sc.getRequestDispatcher(url);
 			 rd.forward(req, res);
+		} else if (action.equals("LOGIN")) {
+			 String username,userpass;
+			 Boolean validado = false;
+			 username = req.getParameter("username");
+			 userpass = req.getParameter("userpass");
+			 try {
+				Connection con = ds.getConnection();
+				Statement stmt = con.createStatement();
+				String query = "SELECT userpass FROM users WHERE username='"+username+"';";
+				ResultSet rs = stmt.executeQuery(query);
+				if(rs.next()) {
+					if (MD5class.GetMD5(userpass) == rs.getString("userpass"));
+						validado = true;
+				}
+				stmt.close();
+				con.close();
+				// if (row == 0)
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		} else {
 			 String url = "/register.jsp";
 			 ServletContext sc = getServletContext();
@@ -110,12 +132,12 @@ public class RegisterServlet extends HttpServlet {
 		HttpPost httpPost = new HttpPost("http://localhost:8080/better-api/users");
 		httpPost.addHeader("Content-Type", "application/vnd.beeter.api.user+json");
 		httpPost.addHeader("Accept", "application/vnd.beeter.api.user+json");
-		
+
 		JSONObject obj = new JSONObject();
 		obj.put("name", name);
-        obj.put("username", username);
-        obj.put("email", email);
-        String user = obj.toJSONString();
+		obj.put("username", username);
+		obj.put("email", email);
+		String user = obj.toJSONString();
 
 		try {
 			httpPost.setEntity(new StringEntity(user));
