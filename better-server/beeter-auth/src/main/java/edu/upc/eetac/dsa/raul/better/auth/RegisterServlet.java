@@ -105,6 +105,7 @@ public class RegisterServlet extends HttpServlet {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		//	 return true;
 			
 		} else {
 			 String url = "/register.jsp";

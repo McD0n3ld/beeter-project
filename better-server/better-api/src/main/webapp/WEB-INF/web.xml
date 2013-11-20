@@ -52,7 +52,7 @@
 
 		<init-param>
 			<param-name>cors.exposedHeaders</param-name>
-			<param-value>Content-Type</param-value>
+			<param-value>Content-Type, Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
 		</init-param>
 
 		<init-param>
@@ -106,7 +106,7 @@
 			<role-name>registered</role-name>
 		</auth-constraint>
 	</security-constraint>
-	
+
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Users-registered</web-resource-name>
@@ -118,7 +118,7 @@
 			<role-name>registered</role-name>
 		</auth-constraint>
 	</security-constraint>
-	
+
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Users-admin</web-resource-name>
