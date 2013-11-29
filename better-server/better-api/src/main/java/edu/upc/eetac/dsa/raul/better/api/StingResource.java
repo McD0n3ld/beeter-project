@@ -257,7 +257,7 @@ public class StingResource {
 			throw new BadRequestException("Subject length must be less or equal than 100 characters");
 		if (sting.getContent().length() > 500)
 			throw new BadRequestException("Content length must be less or equal than 100 characters");
-		if (security.isUserInRole("registered")) {
+		/*if (security.isUserInRole("registered")) {
 			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
 				throw new ForbiddenException("You are not allowed...");
 			}
@@ -272,11 +272,11 @@ public class StingResource {
 		try {
 			stmt = con.createStatement();
 			String update;
-			update = "UPDATE stings SET stings.content='" + sting.getContent() + "', stings.subject='" + sting.getSubject() + "' WHERE stingid='" + stingid
+			/*update = "UPDATE stings SET stings.content='" + sting.getContent() + "', stings.subject='" + sting.getSubject() + "' WHERE stingid='" + stingid
 					+ "';";
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
-				throw new StingNotFoundException();
+				throw new StingNotFoundException();*/
 			String query = "SELECT * FROM stings WHERE stingid=" + stingid + ";";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {

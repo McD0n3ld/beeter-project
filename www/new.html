@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Beeter</title>
+ 
+  </head>
+  <body>
+    <h1>Sting</h1>
+   			<form id="post">
+   				Contenido: <input type="text" id="content" required=""><span id="error_content"></span><br>
+   				Subject: <input type="text" id="subject" required=""><span id="error_subject"></span><br>
+   				Username: <input type="text" id="username" required=""><span id="error_username"></span><br>
+                <input type="hidden" value="POST">
+                <input type="submit" name="submit" id="button_post_sting" value="POST Sting"/>
+              </form>
+    <!-- SCRIPTS -->
+	  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script type="text/javascript" src="js/beeter.js"></script>
+    
+    <br><br>
+    <span id="res_post_sting"></span><br><br>
+  </body>
+</html>
