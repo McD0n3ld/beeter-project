@@ -1,60 +1,55 @@
 var API_BASE_URL = "http://localhost:8080/better-api";
+var READY = "FALSE";
 
-$().ready(function() {
-	$('#get').validate({
-		  rules: {
-			  	id: "required"
-		  		},
-		  messages: {	//si va mal
-			    id: "Introduce una ID!"
-		  		}
-		});
-});
+$(document).ready(function(){
+	validar();
+}); // end document.ready
  
 $("#button_get_sting").click(function(e){
 	e.preventDefault();
 	var id = $('#id').val();
-	
 	getSting(id);	
 });
  
 $("#button_delete_sting").click(function(e){
 	e.preventDefault();
-	deleteSting(84);
+	var id = $('#id').val();
+	deleteSting(id);
 });
  
 $("#button_post_sting").click(function(e){
 	e.preventDefault();
-	var content = $('#content').val();
-	var subject = $('#subject').val();
-	var username = $('#username').val();
-	if ((content != "") && (subject != "") && (username != "")) {
+	READY = "FALSE";
+	validar();
+	if (READY == "TRUE") {
+		var content = $('#noimporta_contenido').val();
+		var subject = $('#noimporta_subject').val();
+		var username = $('#noimporta_username').val();
 		var sting ='{"content": "'+ content+'", "subject": "'+ subject+'", "username": "'+ username+'"}';
-		$('#error_content').html("");
-		$('#error_subject').html("");
-		$('#error_username').html("");
 		createSting(sting);
-	} else {
-		if (content == "")
-			$('#error_content').html("<font color='red'>Falta contenido!</font>");
-		if (subject == "")
-			$('#error_subject').html("<font color='red'>Falta subject!</font>");
-		if (username == "")
-			$('#error_username').html("<font color='red'>Falta username!</font>");
 	}
+});
+
+$("#button_get_sting_before_update").click(function(e){
+	e.preventDefault();
+	var id = $('#id').val();
+	getStingBeforeUpdate(id);	
 });
 
 $("#button_put_sting").click(function(e){
 	e.preventDefault();
-	var sting ='{"content": "Update AJAX", "subject": "AJAX", "id": "104"}';
-	var stingid = 104;
+	var content = $('#noimporta_contenido').val();
+	var subject = $('#noimporta_subject').val();
+	var id = $('#id').val();
+	var sting ='{"content": "'+ content+'", "subject": "'+ subject+'", "id": "'+ id +'"}';
+	createSting(sting);
 	updateSting(sting, stingid);
 });
 
 $("#button_get_list_sting").click(function(e){
 	e.preventDefault();
-	var offset = 0;
-	var length = 10;
+	var offset = $('#offset').val();
+	var length = $('#offset').val();;
 	getListSting(offset, length);
 }); 
  
@@ -78,20 +73,25 @@ function getSting(stingid) {
 	    },
 	})
 	.done(function (data, status, jqxhr) {
-		var sting = $.parseJSON(jqxhr.responseText);
-		var htmlString = "GET STING<br>";
-		htmlString += 'ID: '+data.stingId+'<br>';
-		htmlString += 'Autor: '+data.author+'<br>';
-		htmlString += 'Subject: '+data.subject+'<br>';
-		htmlString += 'Content: '+data.content+'<br>';
-		htmlString += 'Tiemstamp: '+data.creationTimestamp;
+		var s = $.parseJSON(jqxhr.responseText);
+		var htmlString = "<table class='table'>";
+		htmlString += "<tr><th>ID</th><th>Autor</th><th>Subject</th><th>Contenido</th><th>Timestamp</th></tr>";
+		htmlString += "<tr>";
+        htmlString += '<td>'+s.stingId+'</td>';
+		htmlString += '<td>'+s.author+'</td>';
+		htmlString += '<td>'+s.subject+'</td>';
+		htmlString += '<td>'+s.content+'</td>';
+		htmlString += '<td>'+s.creationTimestamp+'</td>';
+		htmlString += "</tr>";
+		htmlString +="</table>";
 		$('#res_get_sting').html(htmlString);
 		console.log(sting);
 	})
     .fail(function (jqXHR, textStatus) {
+		var htmlString = "GET STING <img src='img/error.png'/>";
+		$('#res_get_sting').html(htmlString);
 		console.log(textStatus);
 	});
- 
 }
  
 function deleteSting(stingid) {
@@ -113,12 +113,12 @@ function deleteSting(stingid) {
 	    },
 	})
     .done(function (data, status, jqxhr) {
-    	var htmlString = "DELETE STING: "+status;
+    	var htmlString = "DELETE STING <img src='img/valid.png'/>";
 		$('#res_delete_sting').html(htmlString);
 		console.log(status);
 	})
     .fail(function (jqXHR, textStatus) {
-    	var htmlString = "DELETE STING: "+textStatus;
+    	var htmlString = "DELETE STING: "+textStatus+ "<img src='img/error.png'/>";
 		$('#res_delete_sting').html(htmlString);
 		console.log(textStatus);
 	});
@@ -147,17 +147,51 @@ function createSting(sting) {
 	    },
 	})
 	.done(function (data, status, jqxhr) {
-		var htmlString = "POST STING: "+status;
-		$('#res_post_sting').html(htmlString);
+		var htmlString = "<br><div class='alert alert-success' id='error'>POST STING "+status+"</div>";
+		$('#return').html(htmlString);
 		console.log(status);
 	})
     .fail(function (jqXHR, textStatus) {
-    	var htmlString = "POST STING: "+textStatus+" <br>"+sting;;
+    	var htmlString = "<br><div class='alert alert-danger' id='error'>POST STING "+textStatus+"</div>";
 		$('#res_post_sting').html(htmlString);
 		console.log(textStatus);
 	});
 }
 
+
+function getStingBeforeUpdate(stingid) {
+	//var url = "/stings/"+stingid;
+	var url = "http://localhost:8080/better-api/stings/"+stingid;
+ 
+	$.ajax({
+		url : url,
+		type : 'GET',
+		crossDomain : true,
+		dataType : 'json',
+		headers : {
+			"Accept" : "application/vnd.beeter.api.sting+json",
+			//"Access-Control-Allow-Origin" : "*"
+		},
+		beforeSend: function (request)
+	    {
+	        request.withCredentials = true;
+	        request.setRequestHeader("Authorization", "Basic "+ btoa('alicia:alicia'));
+	    },
+	})
+	.done(function (data, status, jqxhr) {
+		var sting = $.parseJSON(jqxhr.responseText);
+		document.getElementById('noimporta_subject').value=data.subject;
+		document.getElementById('noimporta_contenido').value=data.content;
+		document.getElementById('noimporta_username').value=data.author;
+		$('#res_put_sting').html("");
+		console.log(sting);
+	})
+    .fail(function (jqXHR, textStatus) {
+    	var htmlString = "GET STING <img src='img/error.png'/>";
+		$('#res_put_sting').html(htmlString);
+		console.log(textStatus);
+	});
+}
 
 function updateSting(sting, stingid) {
 	var url = API_BASE_URL + '/stings/' + stingid;
@@ -218,19 +252,23 @@ function getListSting(offset, length) {
 	})
 	.done(function (data, status, jqxhr) {
 		var sting = $.parseJSON(jqxhr.responseText);
-		var htmlString = "GET LIST STING<br>";
+		var htmlString = "<table class='table'>";
+		htmlString += "<tr><th>ID</th><th>Autor</th><th>Subject</th><th>Contenido</th><th>Timestamp</th></tr>";
 		 // Start putting together the HTML string
 	    
 	    // Now start cycling through our array of Flickr photo details
 	    $.each(data.stings, function(i,s){	        
 	        // Here's where we piece together the HTML
-	        htmlString += 'ID: '+s.stingId+'<br>';
-			htmlString += 'Autor: '+s.author+'<br>';
-			htmlString += 'Subject: '+s.subject+'<br>';
-			htmlString += 'Content: '+s.content+'<br>';
-			htmlString += 'Tiemstamp: '+s.creationTimestamp+'<br><br>';
+	    	htmlString += "<tr>";
+	        htmlString += '<td>'+s.stingId+'</td>';
+			htmlString += '<td>'+s.author+'</td>';
+			htmlString += '<td>'+s.subject+'</td>';
+			htmlString += '<td>'+s.content+'</td>';
+			htmlString += '<td>'+s.creationTimestamp+'</td>';
+			htmlString += "</tr>";
 	    
 	    });
+	    htmlString +="</table>";
 		$('#res_get_list_sting').html(htmlString);
 		console.log(sting);
 	})
@@ -238,4 +276,38 @@ function getListSting(offset, length) {
 		console.log(textStatus);
 	});
  
+}
+
+function validar() {
+	$('#contact-form').validate(
+			 {
+			  rules: {
+			    username: {
+			      minlength: 2,
+			      required: true
+			    },
+			    contenido: {
+			      minlength: 2,
+			      required: true
+			      //email: true
+			    },
+			    subject: {
+			      minlength: 2,
+			      required: true
+			    }
+			  },
+			  highlight: function(element) {
+				  READY = "FALSE";
+			    $(element)
+			    .closest('.control-group')
+			    .removeClass('success')
+			    .addClass('error');
+			  },
+			  success: function(element) {
+				  READY = "TRUE";
+			    element
+			    .text('OK!').addClass('valid')	//printa OK, pero en el style.css tenemos que el bacground sea el icono de OK, y emascara el texto
+			    .closest('.control-group').removeClass('error').addClass('success');
+			  }
+			 });
 }
