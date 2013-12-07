@@ -234,7 +234,6 @@ function updateSting(sting, stingid) {
 function getListSting(offset, length) {
 	//var url = "/stings/"+stingid;
 	var url = "http://localhost:8080/better-api/stings?offset="+offset+"&length="+length+"";
- 
 	$.ajax({
 		url : url,
 		type : 'GET',
