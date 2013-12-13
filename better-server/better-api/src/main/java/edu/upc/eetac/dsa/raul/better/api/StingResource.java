@@ -88,7 +88,7 @@ public class StingResource {
 				s.setStingId(rs.getString("stingid"));
 				s.setSubject(rs.getString("subject"));
 				s.setUsername(rs.getString("username"));
-				s.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, s));
+				s.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, s.getStingId().toString(), "self"));
 				stings.add(s);
 			}
 			rs.close();
@@ -113,11 +113,12 @@ public class StingResource {
 	@Consumes(MediaType.BEETER_API_STING)
 	@Produces(MediaType.BEETER_API_STING)
 	public Sting createSting(Sting sting) {
-		// TODO: get connection from database
+				
 		if (sting.getSubject().length() > 100)
 			throw new BadRequestException("Subject length must be less or equal than 100 characters");
 		if (sting.getContent().length() > 500)
 			throw new BadRequestException("Content length must be less or equal than 100 characters");
+		sting.setUsername(security.getUserPrincipal().getName());
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -128,7 +129,8 @@ public class StingResource {
 
 		try {
 			stmt = con.createStatement();
-			String update; // TODO: create update query
+			String update;
+			//stmt.executeUpdate("BEGIN TRAN");
 			update = "INSERT INTO stings (username,content,subject) values ('" + sting.getUsername() + "','" + sting.getContent() + "','" + sting.getSubject()
 					+ "');";
 			stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
@@ -136,18 +138,24 @@ public class StingResource {
 			if (rs.next()) {
 				int stingid = rs.getInt(1);
 				rs.close();
-
-				// TODO: Retrieve the created sting from the database to get all
-				// the remaining fields
-				rs = stmt.executeQuery("SELECT stings.creation_timestamp FROM stings WHERE stingid='" + stingid + "';");
+			
+				rs = stmt.executeQuery("SElLECT stings.creation_timestamp FROM stings WHERE stingid='" + stingid + "';");
 				rs.next();
 				sting.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
 				sting.setStingId(Integer.toString(stingid));
 				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
 				stings.add(sting);
-			} else
+				//stmt.executeUpdate("COMMIT TRAN");
+			} else {
+				//stmt.executeUpdate("ROLLBACK TRAN");
 				throw new StingNotFoundException();
+			}
 		} catch (SQLException e) {
+//			try {
+//				stmt.executeUpdate("ROLLBACK TRANS");
+//			} catch (SQLException e1) {
+//				e1.printStackTrace();
+//			}
 			throw new InternalServerException(e.getMessage());
 		} finally {
 			try {
@@ -272,11 +280,10 @@ public class StingResource {
 		try {
 			stmt = con.createStatement();
 			String update;
-			/*update = "UPDATE stings SET stings.content='" + sting.getContent() + "', stings.subject='" + sting.getSubject() + "' WHERE stingid='" + stingid
-					+ "';";
+			update = "UPDATE stings SET stings.content='" + sting.getContent() + "', stings.subject='" + sting.getSubject() + "' WHERE stingid='" + stingid+ "';";
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
-				throw new StingNotFoundException();*/
+				throw new StingNotFoundException();
 			String query = "SELECT * FROM stings WHERE stingid=" + stingid + ";";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {

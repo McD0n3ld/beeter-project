@@ -6,21 +6,24 @@
 
     <application android:label="@string/app_name" >
         <activity
-            android:name="Beeter"
-            android:label="@string/app_name" 
-            android:icon="@drawable/ic_launcher" >"
+            android:name="Login"
+            android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="Beeter" />
+        <activity android:name="StingDetail" />
+        <activity android:name="WriteSting" />
     </application>
 
     <uses-sdk
         android:maxSdkVersion="18"
         android:minSdkVersion="10"
         android:targetSdkVersion="10" />
-    
+
     <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
