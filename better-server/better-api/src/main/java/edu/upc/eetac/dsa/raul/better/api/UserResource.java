@@ -50,7 +50,7 @@ public class UserResource {
 
 		try {
 			stmt = con.createStatement();
-			String update; // TODO: create update query
+			String update;
 			update = "INSERT INTO users (username,name,email) values ('" + user.getUsername() + "','" + user.getName() + "','" + user.getEmail() + "');";
 			stmt.executeUpdate(update);
 		} catch (SQLException e) {

@@ -130,7 +130,7 @@ public class StingResource {
 		try {
 			stmt = con.createStatement();
 			String update;
-			//stmt.executeUpdate("BEGIN TRAN");
+			con.setAutoCommit(false);
 			update = "INSERT INTO stings (username,content,subject) values ('" + sting.getUsername() + "','" + sting.getContent() + "','" + sting.getSubject()
 					+ "');";
 			stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
@@ -139,15 +139,15 @@ public class StingResource {
 				int stingid = rs.getInt(1);
 				rs.close();
 			
-				rs = stmt.executeQuery("SElLECT stings.creation_timestamp FROM stings WHERE stingid='" + stingid + "';");
+				rs = stmt.executeQuery("SELECT stings.creation_timestamp FROM stings WHERE stingid='" + stingid + "';");
 				rs.next();
 				sting.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
 				sting.setStingId(Integer.toString(stingid));
 				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
 				stings.add(sting);
-				//stmt.executeUpdate("COMMIT TRAN");
+				con.commit();
 			} else {
-				//stmt.executeUpdate("ROLLBACK TRAN");
+				con.rollback();
 				throw new StingNotFoundException();
 			}
 		} catch (SQLException e) {

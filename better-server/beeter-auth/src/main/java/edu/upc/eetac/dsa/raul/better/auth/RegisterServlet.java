@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.servlet.RequestDispatcher;
@@ -63,23 +64,40 @@ public class RegisterServlet extends HttpServlet {
 			pass = req.getParameter("userpass");
 			name = req.getParameter("name");
 			email = req.getParameter("email");
+			Connection con;
+			Statement stmt;
 			try {
-				Connection con = ds.getConnection();
-				Statement stmt = con.createStatement();
-				String update = "INSERT INTO users VALUES('" + username + "',MD5('" + pass + "'),'" + name + "','" + email + "');";
+				con = ds.getConnection();
+				stmt = con.createStatement();
+				try {
+					con.setAutoCommit(false);
+					String update = "INSERT INTO users VALUES('" + username + "',MD5('" + pass + "'),'" + name + "','" + email + "');";
 
-				stmt.executeUpdate(update);
-				// if (row == 0)
-				update = "INSERT INTO user_roles VALUES('" + username + "','registered');";
-				stmt.executeUpdate(update);
-				stmt.close();
-				con.close();
-				// if (row == 0)
-			} catch (Exception e) {
-				e.printStackTrace();
+					stmt.executeUpdate(update);
+					// if (row == 0)
+					update = "INSERT INTO user_roles VALUES('" + username + "','registered');";
+					stmt.executeUpdate(update);
+					int resu = postUserBeeterDB(username, name, email);
+					if (resu == 0)
+						con.commit();
+					else
+						con.rollback();
+					stmt.close();
+					con.close();
+					// if (row == 0)
+				} catch (Exception e) {
+					try {
+						con.rollback();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				}
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
 			}
-			postUserBeeterDB(username, name, email);
-			// suponemos que todo ha ido bien.
 			
 			 String url = "/validar.jsp";
 			 ServletContext sc = getServletContext();
@@ -115,7 +133,7 @@ public class RegisterServlet extends HttpServlet {
 		}
 	}
 
-	private void postUserBeeterDB(String username, String name, String email) {
+	private int postUserBeeterDB(String username, String name, String email) {
 		HttpHost targetHost = new HttpHost("localhost", 8080, "http");
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(new AuthScope(targetHost.getHostName(), targetHost.getPort()), new UsernamePasswordCredentials("admin", "admin"));
@@ -152,11 +170,12 @@ public class RegisterServlet extends HttpServlet {
 				System.out.println(line);
 			httpResponse.close();
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return -1;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return -1;
 		}
+		return 0;
 	}
 }
