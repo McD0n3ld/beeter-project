@@ -11,18 +11,18 @@
             <h1 class="text-center login-title">Identificate para ver stings</h1>
             <div class="account-wall">
 		<img class="profile-img" src="http://www.reelseo.com/wp-content/uploads/2012/06/darth-vader-mask.jpg" alt="">
-		<form class="form-signin">
-                <input type="text" class="form-control" name="username" placeholder="Email" required="" autofocus="">
-                <input type="password" class="form-control" name="userpass" placeholder="Password" required="">
+		<div class="form-signin">
+                <input type="text" class="form-control" id="username" placeholder="Email" value="alicia" required="" autofocus="">
+                <input type="password" class="form-control" id="userpass" placeholder="Password" value="alicia" required="">
                 <input type="hidden" value="LOGIN">
-                <button class="btn btn-lg btn-primary btn-block" type="submit">
+                <button class="btn btn-lg btn-primary btn-block"  id="button_login" >
                     Identificarme</button>
                 <label class="checkbox pull-left">
                     <input type="checkbox" value="remember-me">Recordarme
                 </label>
                 <a href="#" class="pull-right need-help">Necesitas ayuda? </a>
                 <span class="clearfix"></span>
-                </form>
+                </div>
             </div>
             <a href="http://localhost:8080/beeter-auth/register.jsp" class="text-center new-account">Crear una cuenta</a>
         </div>
@@ -30,4 +30,6 @@
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://code.jquery.com/jquery.js"></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
+		<script src="http://cachedcommons.org/cache/jquery-cookie/0.0.0/javascripts/jquery-cookie.js"></script>
+		<script src="js/beeter.js"></script>
 </html>

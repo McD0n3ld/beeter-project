@@ -103,7 +103,7 @@ public class RegisterServlet extends HttpServlet {
 			 ServletContext sc = getServletContext();
 			 RequestDispatcher rd = sc.getRequestDispatcher(url);
 			 rd.forward(req, res);
-		} else if (action.equals("LOGIN")) {
+		} /*else if (action.equals("LOGIN")) {
 			 String username,userpass;
 			 Boolean validado = false;
 			 username = req.getParameter("username");
@@ -125,7 +125,7 @@ public class RegisterServlet extends HttpServlet {
 			}
 		//	 return true;
 			
-		} else {
+		} */else {
 			 String url = "/register.jsp";
 			 ServletContext sc = getServletContext();
 			 RequestDispatcher rd = sc.getRequestDispatcher(url);
@@ -135,7 +135,7 @@ public class RegisterServlet extends HttpServlet {
 
 	private int postUserBeeterDB(String username, String name, String email) {
 		HttpHost targetHost = new HttpHost("localhost", 8080, "http");
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();  
 		credsProvider.setCredentials(new AuthScope(targetHost.getHostName(), targetHost.getPort()), new UsernamePasswordCredentials("admin", "admin"));
 
 		// Create AuthCache instance

@@ -4,7 +4,14 @@ var READY = "FALSE";
 $(document).ready(function(){
 	validar();
 }); // end document.ready
- 
+
+$("#button_login").click(function(e){
+	e.preventDefault();
+	var username = $('#username').val();
+	var userpass = $('#userpass').val();
+	getLogin(username, userpass);	
+});
+
 $("#button_get_sting").click(function(e){
 	e.preventDefault();
 	var id = $('#id').val();
@@ -56,7 +63,8 @@ $("#button_get_list_sting").click(function(e){
 function getSting(stingid) {
 	//var url = "/stings/"+stingid;
 	var url = "http://localhost:8080/better-api/stings/"+stingid;
- 
+	var username = $.cookie("username");
+	var userpass = $.cookie("userpass");
 	$.ajax({
 		url : url,
 		type : 'GET',
@@ -69,7 +77,7 @@ function getSting(stingid) {
 		beforeSend: function (request)
 	    {
 	        request.withCredentials = true;
-	        request.setRequestHeader("Authorization", "Basic "+ btoa('alicia:alicia'));
+	        request.setRequestHeader("Authorization", "Basic "+ btoa(username+':'+userpass));
 	    },
 	})
 	.done(function (data, status, jqxhr) {
@@ -85,7 +93,7 @@ function getSting(stingid) {
 		htmlString += "</tr>";
 		htmlString +="</table>";
 		$('#res_get_sting').html(htmlString);
-		console.log(sting);
+		console.log(s);
 	})
     .fail(function (jqXHR, textStatus) {
 		var htmlString = "GET STING <img src='img/error.png'/>";
@@ -276,6 +284,38 @@ function getListSting(offset, length) {
 	});
  
 }
+
+
+function getLogin(username, userpass) {
+	var url = "http://localhost:8080/better-api/users/"+username;
+ 
+	$.ajax({
+		url : url,
+		type : 'GET',
+		crossDomain : true,
+		dataType : 'json',
+		headers : {
+			"Accept" : "application/vnd.beeter.api.user+json",
+			//"Access-Control-Allow-Origin" : "*"
+		},
+		beforeSend: function (request)
+	    {
+	        request.withCredentials = true;
+	        request.setRequestHeader("Authorization", "Basic "+ btoa(username+':'+userpass));
+	    },
+	})
+	.done(function (data, status, jqxhr) {
+		$.cookie("username", username);
+		$.cookie("userpass", userpass);
+		window.location = "http://localhost/beeter/index.html";
+		console.log(data);
+	})
+    .fail(function (jqXHR, textStatus) {
+		console.log(textStatus);
+	});
+}
+
+
 
 function validar() {
 	$('#contact-form').validate(

@@ -69,6 +69,13 @@ public class UserResource {
 	@Path("/{username}")
 	@Produces(MediaType.BEETER_API_USER)
 	public User getUser(@PathParam("username") String username, @Context Request req) {
+		
+		if (security.isUserInRole("registered")) {
+			if (!security.getUserPrincipal().getName().equals(username)) {
+				throw new ForbiddenException("You are not allowed...");
+			}
+		}
+		
 		User user = new User();
 
 		Connection con = null;
